@@ -179,7 +179,7 @@ export default function usePortal({
     if (portal.current != null) {
       const portalElem = createPortal(children, portal.current);
       return (
-        <PortalContext.Provider value={elToMountTo || null}>
+        <PortalContext.Provider value={portal.current}>
           {portalElem}
         </PortalContext.Provider>
       );
