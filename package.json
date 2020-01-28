@@ -1,11 +1,11 @@
 {
-  "name": "react-useportal",
+  "name": "@kintaba/react-useportal",
   "version": "1.0.12",
   "homepage": "https://codesandbox.io/s/w6jp7z4pkk",
   "main": "dist/usePortal.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alex-cory/react-useportal.git"
+    "url": "https://github.com/Vaultio/react-useportal.git"
   },
   "description": "🌀 React hook for Portals",
   "author": "Alex Cory <results@alexcory.com>",

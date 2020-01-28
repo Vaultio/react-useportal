@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo, ReactNode, DOMAttributes, SyntheticEvent, MutableRefObject, MouseEvent } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo, ReactNode, DOMAttributes, SyntheticEvent, MutableRefObject, MouseEvent, createContext, useContext } from 'react'
 import { createPortal, findDOMNode } from 'react-dom'
 import useSSR from 'use-ssr'
 
@@ -22,7 +22,6 @@ type EventListenersRef = MutableRefObject<{
 type UsePortalOptions = {
   closeOnOutsideClick?: boolean
   closeOnEsc?: boolean
-  bindTo?: HTMLElement // attach the portal to this node in the DOM
   isOpen?: boolean
   onOpen?: CustomEventHandler
   onClose?: CustomEventHandler
@@ -34,10 +33,13 @@ type UsePortalArrayReturn = [] // TODO
 
 export const errorMessage1 = 'You must either add a `ref` to the element you are interacting with or pass an `event` to openPortal(e) or togglePortal(e).'
 
+const PortalContext = createContext(
+  typeof document !== "undefined" ? document.body : null,
+);
+
 export default function usePortal({
   closeOnOutsideClick = true,
   closeOnEsc = true,
-  bindTo, // attach the portal to this node in the DOM
   isOpen: defaultIsOpen = false,
   onOpen,
   onClose,
@@ -56,6 +58,7 @@ export default function usePortal({
   }, [])
 
   const targetEl = useRef() as HTMLElRef // this is the element you are clicking/hovering/whatever, to trigger opening the portal
+  const context = useContext(PortalContext);
   const portal = useRef(isBrowser ? document.createElement('div') : null) as HTMLElRef
 
   useEffect(() => {
@@ -64,8 +67,8 @@ export default function usePortal({
 
   const elToMountTo = useMemo(() => {
     if (isServer) return
-    return (bindTo && findDOMNode(bindTo)) || document.body
-  }, [isServer, bindTo])
+    return context;
+  }, [isServer, context])
 
   const createCustomEvent = (e: any) => {
     if (!e) return { portal, targetEl, event: e }
@@ -173,7 +176,14 @@ export default function usePortal({
   }, [isServer, handleOutsideMouseClick, handleKeydown, elToMountTo, portal])
 
   const Portal = useCallback(({ children }: { children: ReactNode }) => {
-    if (portal.current != null) return createPortal(children, portal.current)
+    if (portal.current != null) {
+      const portalElem = createPortal(children, portal.current);
+      return (
+        <PortalContext.Provider value={elToMountTo || null}>
+          {portalElem}
+        </PortalContext.Provider>
+      );
+    }
     return null
   }, [portal])
 

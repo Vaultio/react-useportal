@@ -15,7 +15,7 @@
     ]
   },
   "include": [
-    "usePortal.ts",
+    "usePortal.tsx",
   ],
   "exclude": ["node_modules"]
 }
